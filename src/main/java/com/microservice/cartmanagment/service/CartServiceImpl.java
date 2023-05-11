@@ -7,7 +7,6 @@ import com.microservice.cartmanagment.repository.CartRepository;
 import com.microservice.cartmanagment.repository.ItemMapper;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +15,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CartServiceImpl implements CartService{
+public class CartServiceImpl implements CartService {
 
   private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -28,6 +27,7 @@ public class CartServiceImpl implements CartService{
 
   /**
    * For testing purpose only
+   *
    * @param cartRepository
    * @param itemMapper
    */
@@ -37,58 +37,67 @@ public class CartServiceImpl implements CartService{
   }
 
   @Override
-  public void addItem(final Item item) throws CartException {
+  public Item addItem(final Item item) {
     logger.info("Adding item.");
-    try{
-      ItemEntity itemEntity = itemMapper.toEntity(item);
-      cartRepository.save(itemEntity);
-    }catch (DataAccessException exception){
+    ItemEntity itemEntity = itemMapper.toEntity(item);
+
+    if (item.getId() != null && cartRepository.findById(item.getId()).isPresent()) {
+      throw new CartException("The item already exists.");
+    }
+
+    try {
+      ItemEntity itemEntitySaved = cartRepository.save(itemEntity);
+      return itemMapper.doDomain(itemEntitySaved);
+    } catch (DataAccessException exception) {
       logger.error("Failed to add item to cart.", exception);
-      throw new CartException("Unable to add item to cart. Please try again later.");
-    }catch (Exception exception){
+      throw new CartException("Unable to add item to cart. Please try again later.", exception);
+    } catch (Exception exception) {
       logger.error("Unexpected error while adding item to cart.", exception);
-      throw new CartException("An unexpected error occurred. Please try again later.");
+      throw new CartException("An unexpected error occurred. Please try again later.", exception);
     }
   }
 
   @Override
   public void removeItem(final Long itemId) {
     logger.info("Deleting item.");
-    try{
-      Optional<ItemEntity> item = cartRepository.findById(itemId);
-      if (item != null && Objects.isNull(item.get())){
-        logger.error("Failed to delete item. Item with the Id provided not found.");
-        throw new CartException("Failed to find the item with the Id provided.");
-      }
-      cartRepository.delete(item.get());
-    }catch (DataAccessException exception){
+    ItemEntity item = cartRepository.findById(itemId)
+        .orElseThrow(() -> new CartException("Item not found."));
+
+    try {
+      cartRepository.delete(item);
+    } catch (DataAccessException exception) {
       logger.error("Failed to delete the item. Please try again later.", exception);
       throw new CartException("Unable to delete item from the cart. Please try again later.");
-    }catch (CartException exception){
+    } catch (Exception exception) {
       logger.error("Unexpected error while deleting the item.", exception);
-      throw new CartException("An unexpected error occurred. Please try again later.");
+      throw new CartException("An unexpected error occurred. Please try again later.", exception);
     }
   }
 
+  /**
+   * TODO change que query to calculate
+   * @return
+   */
   @Override
   public Double getTotal() {
     logger.info("Getting item total.");
-    try{
-      return cartRepository.getTotal();
-    } catch (CartException exception){
-      logger.error("Unexpected error while getting the item total.");
-      throw new CartException("An unexpected error occurred. Please try again later.");
+    try {
+      Double total = cartRepository.getTotal();
+      return Objects.isNull(total) ? 0d : total;
+    } catch (Exception exception) {
+      logger.error("Unexpected error while getting the item total.", exception);
+      throw new CartException("An unexpected error occurred. Please try again later.", exception);
     }
   }
 
   @Override
   public List<Item> getItems() {
     logger.info("Getting items.");
-    try{
+    try {
       return cartRepository.findAll().stream().map(itemMapper::doDomain).collect(Collectors.toList());
-    }catch (CartException exception){
-      logger.error("Unexpected error while getting items.");
-      throw new CartException("An unexpected error occurred. Please try again later.");
+    } catch (Exception exception) {
+      logger.error("Unexpected error while getting items.", exception);
+      throw new CartException("An unexpected error occurred. Please try again later.", exception);
     }
   }
 }

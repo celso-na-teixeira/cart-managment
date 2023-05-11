@@ -1,8 +1,9 @@
 package com.microservice.cartmanagment.domain;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Item {
+public class Item implements Serializable {
 
   private Long id;
   private String name;
@@ -95,4 +96,18 @@ public class Item {
     result = 31 * result + (quantity != null ? quantity.hashCode() : 0);
     return result;
   }
+
+  @Override
+  public String toString() {
+    final StringBuilder sb = new StringBuilder("{");
+    sb.append("id:").append(id);
+    sb.append(", name:'").append(name).append('\'');
+    sb.append(", description:'").append(description).append('\'');
+    sb.append(", price:").append(price);
+    sb.append(", quantity:").append(quantity);
+    sb.append('}');
+    return sb.toString();
+  }
+
+
 }

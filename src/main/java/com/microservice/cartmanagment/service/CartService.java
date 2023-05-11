@@ -6,11 +6,11 @@ import java.util.List;
 
 public interface CartService {
 
-  void addItem(final Item item);
+  Item addItem(final Item item);
 
-  void removeItem(final Long itemId);
+  void removeItem(final Long itemId) throws Exception;
 
-  Double getTotal();
+  Double getTotal() throws Exception;
 
-  List<Item> getItems();
+  List<Item> getItems() throws Exception;
 }

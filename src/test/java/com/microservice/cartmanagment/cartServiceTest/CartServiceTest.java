@@ -64,7 +64,7 @@ public class CartServiceTest {
     verify(cartRepository).save(itemEntity);
   }
   @Test
-  public void testRemoveItem(){
+  public void testRemoveItem() throws Exception {
     ItemEntity itemEntity = new ItemEntity("Queijo", "Queijo dos Açores", 10.5, 1);
     cartRepository.save(itemEntity);
     List<Item> items = cartService.getItems();
@@ -74,7 +74,7 @@ public class CartServiceTest {
   }
 
   @Test
-  public void testGetTotal(){
+  public void testGetTotal() throws Exception {
     ItemEntity itemEntity = new ItemEntity("Vinho", "Vinho do Douro", 3.99, 2);
     ItemEntity itemEntity2 = new ItemEntity("Queijo", "Queijo dos Açores", 10.5, 1);
     cartRepository.saveAll(Arrays.asList(itemEntity, itemEntity2));
@@ -89,7 +89,7 @@ public class CartServiceTest {
   }
 
   @Test
-  public void testGetItems(){
+  public void testGetItems() throws Exception {
     ItemEntity itemEntity = new ItemEntity("Vinho", "Vinho do Douro", 3.99, 2);
     ItemEntity itemEntity2 = new ItemEntity("Queijo", "Queijo dos Açores", 10.5, 1);
     cartRepository.saveAll(Arrays.asList(itemEntity, itemEntity2));
