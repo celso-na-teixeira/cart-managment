@@ -8,9 +8,9 @@ public interface CartService {
 
   Item addItem(final Item item);
 
-  void removeItem(final Long itemId) throws Exception;
+  void removeItem(final Long itemId);
 
-  Double getTotal() throws Exception;
+  Double getTotal();
 
-  List<Item> getItems() throws Exception;
+  List<Item> getItems();
 }

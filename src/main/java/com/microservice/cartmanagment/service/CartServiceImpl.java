@@ -41,13 +41,13 @@ public class CartServiceImpl implements CartService {
     logger.info("Adding item.");
     ItemEntity itemEntity = itemMapper.toEntity(item);
 
-    if (item.getId() != null && cartRepository.findById(item.getId()).isPresent()) {
+    if (cartRepository.findById(item.getId()).isPresent()) {
       throw new CartException("The item already exists.");
     }
 
     try {
       ItemEntity itemEntitySaved = cartRepository.save(itemEntity);
-      return itemMapper.doDomain(itemEntitySaved);
+      return itemMapper.toDomain(itemEntitySaved);
     } catch (DataAccessException exception) {
       logger.error("Failed to add item to cart.", exception);
       throw new CartException("Unable to add item to cart. Please try again later.", exception);
@@ -94,7 +94,7 @@ public class CartServiceImpl implements CartService {
   public List<Item> getItems() {
     logger.info("Getting items.");
     try {
-      return cartRepository.findAll().stream().map(itemMapper::doDomain).collect(Collectors.toList());
+      return cartRepository.findAll().stream().map(itemMapper::toDomain).collect(Collectors.toList());
     } catch (Exception exception) {
       logger.error("Unexpected error while getting items.", exception);
       throw new CartException("An unexpected error occurred. Please try again later.", exception);
